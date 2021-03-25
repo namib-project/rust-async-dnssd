@@ -15,7 +15,10 @@
 //! back to a smaller timeout.
 
 use futures_channel::mpsc as futures_mpsc;
-use futures_util::StreamExt;
+use futures_util::{
+	SinkExt,
+	StreamExt,
+};
 use log::debug;
 use std::{
 	io,
@@ -88,7 +91,7 @@ impl SelectFdRead {
 		use std::ptr::null_mut;
 		let mut timeout = timeout.map(|timeout| winsock2::timeval {
 			tv_sec: timeout.as_secs() as libc::c_long,
-			tv_usec: (timeout.subsec_nanos() / 1000) as libc::c_long,
+			tv_usec: timeout.subsec_micros() as libc::c_long,
 		});
 		self.read_fds.set(self.fd);
 		unsafe {
